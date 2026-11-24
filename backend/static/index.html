@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenClipboard — copy &amp; paste between devices</title>
+  <meta name="description" content="Open-source clipboard: send text, images or files to any device with a 6-digit code. Content auto-deletes." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand__logo">📋</span>
+      <div class="brand__text">
+        <h1>OpenClipboard</h1>
+        <p>Copy &amp; paste between devices</p>
+      </div>
+    </div>
+    <div class="stats" id="stats" hidden>
+      <span class="stats__pill"><b id="stats-active">0</b> active</span>
+      <span class="stats__pill" id="stats-bytes"></span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ===================== SEND ===================== -->
+    <section class="card" id="send-card">
+      <div class="card__head">
+        <h2><span class="dot dot--up"></span> Send</h2>
+        <div class="tabs" role="tablist" id="kind-tabs">
+          <button class="tab is-active" data-kind="text" role="tab">✍️ Text</button>
+          <button class="tab" data-kind="image" role="tab">🖼️ Image</button>
+          <button class="tab" data-kind="file" role="tab">📦 File</button>
+        </div>
+      </div>
+
+      <div class="card__body">
+        <!-- text -->
+        <div class="pane is-active" data-kind="text">
+          <textarea id="text-input" rows="6"
+            placeholder="Paste or type your text here…"
+            spellcheck="false"></textarea>
+          <div class="pane__actions">
+            <button class="btn btn--ghost" id="paste-clipboard" type="button">📋 Paste from clipboard</button>
+          </div>
+        </div>
+
+        <!-- image / file share a dropzone -->
+        <div class="pane" data-kind="image">
+          <div class="dropzone" data-drop="image">
+            <input type="file" id="image-input" accept="image/*" hidden />
+            <div class="dropzone__hint" data-drop-hint>
+              <span class="dropzone__icon">🖼️</span>
+              <p>Drop an image, click to browse,<br>or paste from your clipboard</p>
+            </div>
+            <div class="preview" data-preview hidden></div>
+          </div>
+        </div>
+
+        <div class="pane" data-kind="file">
+          <div class="dropzone" data-drop="file">
+            <input type="file" id="file-input" hidden />
+            <div class="dropzone__hint" data-drop-hint>
+              <span class="dropzone__icon">📦</span>
+              <p>Drop a file or click to browse</p>
+            </div>
+            <div class="preview preview--file" data-preview hidden></div>
+          </div>
+        </div>
+
+        <!-- options -->
+        <div class="options">
+          <label class="field">
+            <span>Expires in</span>
+            <select id="ttl-select">
+              <option value="60">1 minute</option>
+              <option value="300">5 minutes</option>
+              <option value="900" selected>15 minutes</option>
+              <option value="1800">30 minutes</option>
+              <option value="3600">1 hour</option>
+              <option value="86400">24 hours</option>
+            </select>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="one-shot" />
+            <span class="switch__track"><span class="switch__thumb"></span></span>
+            <span class="switch__label">Delete after first download</span>
+          </label>
+        </div>
+
+        <button class="btn btn--primary btn--send" id="send-btn" type="button">
+          <span class="btn__label">Send</span>
+          <span class="spinner" hidden></span>
+        </button>
+
+        <!-- result -->
+        <div class="result" id="send-result" hidden>
+          <p class="result__title">✅ Sent! Retrieve it with this code:</p>
+          <div class="code" id="send-code"></div>
+          <div class="result__meta">
+            <span id="send-meta"></span>
+            <span class="countdown" id="send-countdown"></span>
+          </div>
+          <div class="result__actions">
+            <button class="btn btn--ghost" id="copy-link" type="button">📋 Copy code</button>
+          </div>
+          <p class="hint">Share this 8-character code on any other device to retrieve your content. Do not put it in a URL.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== RETRIEVE ===================== -->
+    <section class="card" id="retrieve-card">
+      <div class="card__head">
+        <h2><span class="dot dot--down"></span> Retrieve</h2>
+      </div>
+      <div class="card__body">
+        <div class="code-input-row">
+          <input class="code-input" id="retrieve-code" inputmode="numeric"
+            pattern="[0-9]*" maxlength="6" placeholder="······" autocomplete="off" />
+          <button class="btn btn--primary" id="retrieve-btn" type="button">Retrieve</button>
+        </div>
+
+        <div class="result" id="retrieve-result" hidden>
+          <div class="badge-row">
+            <span class="kind-badge" id="retrieve-kind"></span>
+            <span class="countdown" id="retrieve-countdown"></span>
+          </div>
+          <p class="result__name" id="retrieve-name"></p>
+
+          <div class="retrieve-content" id="retrieve-content"></div>
+
+          <div class="result__actions" id="retrieve-actions"></div>
+        </div>
+
+        <div class="error" id="retrieve-error" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>
+      <span class="chip">100% open source</span>
+      <span class="chip">MinIO object storage</span>
+      <span class="chip">Auto-deletes on expiry</span>
+      <span class="chip">No sign-up</span>
+    </p>
+    <p class="footer__sub">Your content is stored temporarily and permanently deleted after it expires.</p>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

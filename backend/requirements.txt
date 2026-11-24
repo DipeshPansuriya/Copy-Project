@@ -1,0 +1,14 @@
+# All dependencies are open source.
+# FastAPI (BSD-3), Uvicorn (BSD-3), Pydantic (MIT),
+# python-multipart (BSD-3), MinIO client (Apache-2.0), aiosqlite (MIT).
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+minio>=7.2
+aiosqlite>=0.20
+
+# Security
+slowapi>=0.1.9        # rate limiting
+python-magic>=0.4.27  # real file type verification (not trusting MIME from client)
+bcrypt>=4.2.0         # password hashing for optional clip protection
+asyncpg>=0.29         # PostgreSQL async driver

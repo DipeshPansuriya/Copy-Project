@@ -1,0 +1,40 @@
+# OpenClipboard — Production Docker Compose (Hostinger VPS)
+#
+# Usage:
+#   cp .env.example .env
+#   # Edit .env with your production values
+#   docker compose -f docker-compose.prod.yml up --build -d
+
+services:
+  app:
+    build: ./backend
+    container_name: openclipboard-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"  # Only localhost — Nginx proxies to this
+    volumes:
+      - clip-data:/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Optional: limit memory for large file uploads
+    # mem_limit: 2g
+
+  # Optional: Redis for shared caching (multi-instance)
+  # Uncomment if you have Redis running:
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: openclipboard-redis
+  #   restart: unless-stopped
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - clip-redis:/data
+
+volumes:
+  clip-data:
+  # clip-redis:
