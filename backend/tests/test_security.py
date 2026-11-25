@@ -6,8 +6,6 @@ rate limiting, lockout, magic byte verification.
 
 import io
 
-import pytest
-
 
 class TestExecutableRejection:
     """Executable files must be rejected by magic-byte detection."""
@@ -97,7 +95,6 @@ class TestPathTraversal:
             files={"file": ("../../../etc/passwd", io.BytesIO(content), "text/plain")},
         )
         assert resp.status_code == 200
-        code = resp.json()["code"]
         # The stored filename should be just "passwd", not the full path
         assert resp.json()["filename"] == "passwd"
 

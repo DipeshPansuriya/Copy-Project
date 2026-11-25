@@ -6,8 +6,6 @@ Covers: send, retrieve, item info, file download, delete, stats, health.
 import io
 import time
 
-import pytest
-
 
 class TestSendEndpoint:
     """Tests for POST /api/send."""

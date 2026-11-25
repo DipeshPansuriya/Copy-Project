@@ -161,9 +161,10 @@ def main() -> int:
 
     if findings:
         print("❌ SECRETS DETECTED — potential hardcoded secrets found:")
-        for path, line_no, match, rule_name in findings:
+        for path, line_no, _match, rule_name in findings:
             rel = path.relative_to(ROOT)
-            print(f"  {rel}:{line_no} — {rule_name}: {match}")
+            # Never echo the matched value: this output lands in CI logs.
+            print(f"  {rel}:{line_no} — {rule_name} (value redacted)")
         print(f"\nTotal findings: {len(findings)}")
         print("Move secrets to environment variables or .env (never commit .env).")
         return 1
