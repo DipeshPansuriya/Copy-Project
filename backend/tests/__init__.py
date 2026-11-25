@@ -1,0 +1,1 @@
+"""OpenClipboard test package."""

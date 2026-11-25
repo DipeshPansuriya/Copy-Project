@@ -21,7 +21,7 @@ Users need to copy-paste text, images, and files between devices without signing
 
 | Goal | Success Metric |
 |------|----------------|
-| Cross-device clipboard sharing via 6-digit code | User can send on device A, retrieve on device B |
+| Cross-device clipboard sharing via 12-character code | User can send on device A, retrieve on device B |
 | Support text, images, and files | All three kinds upload and download successfully |
 | Configurable expiry (30s–24h) | Content auto-deletes after TTL |
 | One-shot / burn-after-read | Content deletes after first download |
@@ -39,14 +39,14 @@ Users need to copy-paste text, images, and files between devices without signing
 ## 5. User Stories
 
 ### As a sender, I want to…
-1. Paste text and get a 6-digit code
-2. Drop an image or file and get a 6-digit code
+1. Paste text and get a 12-character code
+2. Drop an image or file and get a 12-character code
 3. Choose how long the content lives (30s to 24h)
 4. Enable burn-after-read so content deletes after first download
 5. Copy a shareable link containing the code
 
 ### As a receiver, I want to…
-1. Enter a 6-digit code on any device
+1. Enter a 12-character code on any device
 2. View text inline, preview images, download files
 3. See a countdown to expiry
 4. Delete content immediately if I am the sender
@@ -62,7 +62,7 @@ Users need to copy-paste text, images, and files between devices without signing
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | FR-01 | POST `/api/send` accepts text, image, or file | P0 |
-| FR-02 | Returns a unique 6-digit alphanumeric code | P0 |
+| FR-02 | Returns a unique 12-character alphanumeric code | P0 |
 | FR-03 | GET `/api/retrieve/{code}` returns metadata and content | P0 |
 | FR-04 | GET `/api/file/{code}` streams the blob | P0 |
 | FR-05 | DELETE `/api/item/{code}` removes content immediately | P0 |

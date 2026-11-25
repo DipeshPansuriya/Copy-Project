@@ -33,8 +33,8 @@ class Storage:
 class LocalStorage(Storage):
     """Files under <data_dir>/blobs. For development only."""
 
-    def __init__(self, root: Path) -> None:
-        self.root = root
+    def __init__(self, root: str | Path) -> None:
+        self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
 
     def _path(self, key: str) -> Path:

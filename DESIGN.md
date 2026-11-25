@@ -7,7 +7,7 @@
 | **Simplicity first** | Single-file SQLite, no build step for frontend, one Docker container |
 | **Open source only** | FastAPI, SQLite, MinIO, python-magic, slowapi — all OSS |
 | **Ephemeral by default** | Content dies; nothing persists forever without intent |
-| **Capability-based security** | The 6-digit code is the key; no passwords, no accounts |
+| **Capability-based security** | The 12-character code is the key; no passwords, no accounts |
 | **Fail closed** | Invalid codes, executables, and oversized files are rejected |
 
 ## 2. UI Design
@@ -45,7 +45,7 @@
 
 ### Result Panel
 
-- Displays the 6-digit code in spaced digits
+- Displays the 12-character code in monospace characters
 - Shows kind, size, and TTL
 - Live countdown to expiry
 - "Copy share link" button
@@ -53,7 +53,7 @@
 
 ### Retrieve Panel
 
-- 6-digit code input (numeric, max 6 chars)
+- 12-character code input (alphanumeric, max 12 chars)
 - Retrieve button
 - Result area: text in `<pre>`, image in ``, file with download link
 - "Copy text" button for text entries
@@ -143,7 +143,7 @@ class Storage:
 ├─────────────────────────────────────────────────────────────┤
 │  Layer 3: Security Headers (CSP, HSTS, X-Frame-Options)     │
 ├─────────────────────────────────────────────────────────────┤
-│  Layer 2: Capability-Based Access (6-digit code)            │
+│  Layer 2: Capability-Based Access (12-character code)            │
 ├─────────────────────────────────────────────────────────────┤
 │  Layer 1: Auto-Expiration (TTL + one-shot + purge worker)   │
 └─────────────────────────────────────────────────────────────┘
@@ -157,4 +157,4 @@ class Storage:
 | Local disk vs MinIO | Both | Local for dev; MinIO for prod |
 | No auth vs Auth | No auth | Simplest UX; code is the credential |
 | No encryption vs Encryption | No encryption | v1 scope; add later if needed |
-| 6-digit code vs UUID | 6-digit | Easy to type on mobile; rate-limited |
+| 12-character code vs UUID | 12-character | Easy to type on mobile; rate-limited |

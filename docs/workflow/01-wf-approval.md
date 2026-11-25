@@ -4,7 +4,7 @@
 
 ## 1. Overview
 
-OpenClipboard v1 does **not** have a multi-step approval workflow. Content is sent immediately and retrievable by anyone with the 6-digit code.
+OpenClipboard v1 does **not** have a multi-step approval workflow. Content is sent immediately and retrievable by anyone with the 12-character code.
 
 ## 2. Current Behavior
 
@@ -12,7 +12,7 @@ OpenClipboard v1 does **not** have a multi-step approval workflow. Content is se
 |------|--------|-------|--------|
 | 1 | User enters text/file and clicks Send | Sender | Frontend → API |
 | 2 | API validates and stores content | System | Backend |
-| 3 | API returns 6-digit code | System | API response |
+| 3 | API returns 12-character code | System | API response |
 | 4 | User shares code with receiver | Sender | External channel |
 | 5 | Receiver enters code and retrieves | Receiver | API |
 

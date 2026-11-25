@@ -40,7 +40,7 @@ ERROR: Exception in ASGI application ...
 | Images not showing | MinIO not configured or port conflict | Check `CLIP_STORAGE`; verify Docker ports |
 | `429 Too Many Requests` | Rate limit exceeded | Wait for window reset; adjust `CLIP_RATE_LIMIT_*` |
 | `410 Gone` on retrieve | Code expired or one-shot consumed | Re-send content with new code |
-| `400` on retrieve | Code not 6 digits | Enter exactly 6 numeric digits |
+| `400` on retrieve | Code not 12 characters | Enter exactly 6 numeric digits |
 | Database locked | Multiple writers to SQLite | Single instance only; use MinIO for storage if scaling |
 
 ## 4. Database Inspection

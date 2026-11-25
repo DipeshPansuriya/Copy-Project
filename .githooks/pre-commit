@@ -1,0 +1,40 @@
+#!/bin/bash
+# Pre-commit hook for OpenClipboard
+# Runs before each commit to enforce security and quality policies.
+#
+# Installed by: scripts/install_hooks.sh
+#   git config core.hooksPath .githooks
+
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+SCRIPTS_DIR="$ROOT/scripts"
+
+echo "🔍 Running pre-commit checks..."
+
+# 1. Block .env files from being committed
+if git diff --cached --name-only --diff-filter=ACM | grep -qE '(^|/)\.env($|\.)'; then
+  echo "❌ .env file(s) must not be committed — use .env.example"
+  exit 1
+fi
+
+# 2. Scan staged files for secrets using the shared 19-rule scanner
+if [ -x "$SCRIPTS_DIR/check_secrets.py" ] || [ -f "$SCRIPTS_DIR/check_secrets.py" ]; then
+  echo "  🔐 Scanning staged files for secrets..."
+  if ! python3 "$SCRIPTS_DIR/check_secrets.py" --quick; then
+    echo "❌ Secret scan failed — commit blocked"
+    exit 1
+  fi
+fi
+
+# 3. Run the quick security audit
+if [ -x "$SCRIPTS_DIR/security_audit.sh" ]; then
+  echo "  🛡️  Running security audit..."
+  if ! "$SCRIPTS_DIR/security_audit.sh" --quick; then
+    echo "❌ Security audit failed — commit blocked"
+    exit 1
+  fi
+fi
+
+echo "✅ Pre-commit checks passed"
+exit 0

@@ -8,7 +8,7 @@ OpenClipboard uses **SQLite** for metadata. The actual file blobs are stored sep
 
 ```sql
 CREATE TABLE IF NOT EXISTS items (
-    code         TEXT PRIMARY KEY,      -- 6-digit retrieval code
+    code         TEXT PRIMARY KEY,      -- 12-character retrieval code
     kind         TEXT NOT NULL,         -- 'text' | 'image' | 'file'
     filename     TEXT,                  -- Original filename (sanitized)
     content_type TEXT,                  -- MIME type (magic-verified)
@@ -28,7 +28,7 @@ CREATE INDEX IF NOT EXISTS idx_items_expires ON items (expires_at);
 
 | Column | Type | Nullable | Description |
 |--------|------|----------|-------------|
-| `code` | TEXT | NO | Primary key. 6-digit numeric code |
+| `code` | TEXT | NO | Primary key. 12-character alphanumeric code |
 | `kind` | TEXT | NO | Entry type: `text`, `image`, `file` |
 | `filename` | TEXT | YES | Original filename (basename only, URL-encoded) |
 | `content_type` | TEXT | YES | MIME type verified by `python-magic` |

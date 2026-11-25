@@ -164,12 +164,12 @@
 
   function showSendResult(data) {
     els.sendResult.hidden = false;
-    els.sendCode.textContent = data.code.split("").join(" ");
+    els.sendCode.textContent = data.code;
     const mins = Math.floor(data.ttl / 60);
     const unit = mins >= 60 ? Math.floor(mins / 60) + " hour" : mins + " minute" + (mins === 1 ? "" : "s");
     els.sendMeta.textContent = `${data.kind.toUpperCase()} • ${formatBytes(data.size)} • ${unit}`;
     startCountdown(els.sendCountdown, new Date(data.expires_at));
-    if (data.oneShot) {
+    if (data.one_shot) {
       els.sendMeta.textContent += " • one-shot (deleted after first download)";
     }
   }
@@ -182,16 +182,17 @@
   // ---------------- retrieve ----------------
   let retrieveTimer = null;
   els.retrieveInput.addEventListener("input", (e) => {
-    e.target.value = e.target.value.replace(/\D/g, "");
+    // Codes are 12 chars, case-sensitive alphanumeric. Strip anything else.
+    e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 12);
     els.retrieveResult.hidden = true;
     els.retrieveError.hidden = true;
     if (retrieveTimer) clearInterval(retrieveTimer);
   });
 
   els.retrieveBtn.addEventListener("click", () => {
-    const code = els.retrieveInput.value.trim().replace(/\s/g, "");
-    if (!/^\d{6}$/.test(code)) {
-      showRetrieveError("Please enter a 6-digit code.");
+    const code = els.retrieveInput.value.trim();
+    if (!/^[A-Za-z0-9]{12}$/.test(code)) {
+      showRetrieveError("Please enter the full 12-character code.");
       return;
     }
     fetchCode(code);
@@ -342,7 +343,7 @@
   // copy share link — copy only the code, not a URL with ?code=
   // (avoids leaking the code in browser history, server logs, Referer headers)
   els.copyLink.addEventListener("click", () => {
-    const code = els.sendCode.textContent.replace(/\s/g, "");
+    const code = els.sendCode.textContent.trim();
     navigator.clipboard.writeText(code).then(() => {
       const old = els.copyLink.textContent;
       els.copyLink.textContent = "Code copied!";
@@ -352,8 +353,9 @@
 
   // prefill code from ?code= querystring (optional; avoid sharing URLs with codes)
   const params = new URLSearchParams(location.search);
-  if (params.get("code")) {
-    els.retrieveInput.value = params.get("code");
+  const prefill = (params.get("code") || "").replace(/[^A-Za-z0-9]/g, "").slice(0, 12);
+  if (prefill.length === 12) {
+    els.retrieveInput.value = prefill;
     els.retrieveBtn.click();
   }
 })();

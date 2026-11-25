@@ -11,7 +11,7 @@
 │  │  (send UI)  │                   │  (retrieve  │         │
 │  └──────┬──────┘                   │   UI)       │         │
 │         │                          └──────┬──────┘         │
-│         │ 6-digit code                   │ 6-digit code     │
+│         │ 12-character code                   │ 12-character code     │
 │         └────────────────────────────────┘                │
 │                           Internet / LAN                    │
 └─────────────────────────────────────────────────────────────┘
@@ -78,14 +78,14 @@
 1. Client POSTs `multipart/form-data` to `/api/send`
 2. Rate limit checked (20/min per IP)
 3. File type verified via `python-magic` (executables rejected)
-4. 6-digit code generated via `secrets.randbelow`
+4. 12-character code generated via `secrets.randbelow`
 5. Blob written to storage (UUID key, not user filename)
 6. Metadata row inserted into SQLite (TTL = now + ttl)
 7. Code returned to client
 
 ### Retrieve Flow
 1. Client GETs `/api/retrieve/{code}`
-2. Code format validated (`^\d{6}$`)
+2. Code format validated (`^[A-Za-z0-9]{12}$`)
 3. Row looked up in SQLite
 4. Expired or consumed one-shot rows are lazily purged (410)
 5. Metadata + (optional) text body returned
@@ -128,7 +128,7 @@
 |----------|-----------|
 | SQLite (not PostgreSQL) | Zero-config, single file, sufficient for single-instance self-hosting |
 | Local disk default (MinIO optional) | Works without Docker Compose services; MinIO for production scale |
-| 6-digit numeric code | Easy to type on mobile; 1M space with rate limiting is secure enough for v1 |
+| 12-character alphanumeric code | Easy to type on mobile; 62^12 space makes guessing infeasible |
 | Capability-based access (no auth) | Simplest UX; no accounts to manage |
 | Lazy purge on retrieve + background sweep | Ensures expired codes can be reclaimed even if sweep missed them |
 | Magic-byte file verification | Prevents extension spoofing and executable uploads |

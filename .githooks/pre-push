@@ -1,0 +1,41 @@
+#!/bin/bash
+# Pre-push hook for OpenClipboard
+# Runs before each push to enforce branch protection and secret scanning.
+#
+# Installed by: scripts/install_hooks.sh
+
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+SCRIPTS_DIR="$ROOT/scripts"
+
+echo "🚀 Running pre-push checks..."
+
+remote="$1"
+url="$2"
+
+# 1. Run secret scanner on all staged/committed changes
+echo "  🔐 Scanning for secrets..."
+if [ -x "$SCRIPTS_DIR/check_secrets.py" ]; then
+  if ! python3 "$SCRIPTS_DIR/check_secrets.py" --push; then
+    echo "❌ Secret scan failed — push blocked"
+    exit 1
+  fi
+fi
+
+# 2. Prevent direct push to main (require PR)
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$current_branch" = "main" ] || [ "$current_branch" = "master" ]; then
+  echo "⚠️  Direct push to $current_branch is not allowed — use a pull request"
+  exit 1
+fi
+
+# 3. Run full security audit
+echo "  🛡️  Running security audit..."
+if ! "$SCRIPTS_DIR/security_audit.sh" --full; then
+  echo "❌ Security audit failed — push blocked"
+  exit 1
+fi
+
+echo "✅ Pre-push checks passed"
+exit 0

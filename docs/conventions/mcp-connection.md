@@ -20,7 +20,7 @@ If an MCP server is added, it would expose tools such as:
 ```json
 {
   "name": "clipboard_send",
-  "description": "Send text to OpenClipboard and get a 6-digit retrieval code",
+  "description": "Send text to OpenClipboard and get a 12-character retrieval code",
   "inputSchema": {
     "type": "object",
     "properties": {

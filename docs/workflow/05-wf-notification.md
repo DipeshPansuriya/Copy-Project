@@ -4,7 +4,7 @@
 
 ## 1. Current State (v1)
 
-OpenClipboard v1 does **not** send notifications. The 6-digit code is the only mechanism for connecting sender and receiver. The sender must share the code through an external channel (email, chat, SMS, in-person, etc.).
+OpenClipboard v1 does **not** send notifications. The 12-character code is the only mechanism for connecting sender and receiver. The sender must share the code through an external channel (email, chat, SMS, in-person, etc.).
 
 ## 2. Current Notification Flow (Manual)
 
@@ -15,7 +15,7 @@ OpenClipboard v1 does **not** send notifications. The 6-digit code is the only m
 │             │      in-person, etc.)      │             │
 └─────────────┘                            └─────────────┘
        │                                           │
-       │  Shares 6-digit code                      │  Enters code
+       │  Shares 12-character code                      │  Enters code
        │                                           │   and retrieves
        └───────────────────────────────────────────┘
 ```
@@ -53,7 +53,7 @@ If notifications are added, the following channels could be supported:
        │                      │                           │
        │                      │      4. Send email/SMS    │
        │                      │      to receiver with     │
-       │                      │      the 6-digit code     │
+       │                      │      the 12-character code     │
        │                      │                           │
        │                      │───────────────────────────│
        │                      │                           │
@@ -97,7 +97,7 @@ WEBHOOK_SECRET=change-me
 
 ## 4. Privacy Considerations
 
-- Notifications contain the 6-digit code (capability token)
+- Notifications contain the 12-character code (capability token)
 - Email/SMS delivery exposes codes to third-party providers
 - Consider end-to-end encrypted delivery for sensitive content
 - Allow users to opt out of notifications

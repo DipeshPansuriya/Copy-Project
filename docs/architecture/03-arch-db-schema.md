@@ -30,7 +30,7 @@ CREATE INDEX IF NOT EXISTS idx_items_expires ON items (expires_at);
 
 | Column | Type | Nullable | Description |
 |--------|------|----------|-------------|
-| `code` | TEXT | NO | PK. 6-digit retrieval code |
+| `code` | TEXT | NO | PK. 12-character retrieval code |
 | `kind` | TEXT | NO | `text` \| `image` \| `file` |
 | `filename` | TEXT | YES | Sanitized original filename |
 | `content_type` | TEXT | YES | MIME type (magic-verified) |

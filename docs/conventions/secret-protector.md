@@ -2,13 +2,13 @@
 
 ## 1. Purpose
 
-OpenClipboard does not store user secrets (passwords, API keys, etc.) in v1. The only "secret" is the **6-digit retrieval code**, which acts as a capability token.
+OpenClipboard does not store user secrets (passwords, API keys, etc.) in v1. The only "secret" is the **12-character retrieval code**, which acts as a capability token.
 
 ## 2. Code Handling
 
 | Aspect | Implementation |
 |--------|---------------|
-| Generation | `secrets.randbelow(1_000_000)` — cryptographically random |
+| Generation | `secrets.choice over [A-Za-z0-9]` — cryptographically random |
 | Storage | Plaintext in SQLite (code is the lookup key) |
 | Transmission | Plaintext over HTTP (use HTTPS in production via reverse proxy) |
 | Display | Shown in UI after send; included in share link |

@@ -2,13 +2,35 @@
 
 ## Security Policy
 
-OpenClipboard is a self-hosted, temporary pastebin-style service. Security is designed around **capability-based access** (the 6-digit code) and **automatic data destruction** (TTL expiry + one-shot deletion).
+OpenClipboard is a self-hosted, temporary pastebin-style service. Security is designed around **capability-based access** (the code) and **automatic data destruction** (TTL expiry + one-shot deletion).
+
+This repository follows the same security hardening as
+[DipeshPansuriya/MLX_Model_App](https://github.com/DipeshPansuriya/MLX_Model_App),
+including branch protection, push restrictions, pre-commit/pre-push hooks,
+secret scanning, and CI/CD security workflows.
+
+## Repository Security Settings
+
+The following GitHub security features are enabled:
+
+| Feature | Status |
+|---------|--------|
+| Branch protection (`main`) | ✅ Enabled |
+| Required approving reviews | 1 |
+| Required status checks | security scan, quality checks, Docker build |
+| Dependabot alerts | ✅ Enabled |
+| Secret scanning | ✅ Enabled |
+| Push protection | ✅ Enabled |
+| Code scanning (CodeQL) | ✅ Enabled |
+| Signed commits | ✅ Required |
+
+See [docs/GITHUB-POLICY.md](./docs/GITHUB-POLICY.md) for full repository governance.
 
 ## 1. Threat Model
 
 | Threat | Actor | Mitigation |
 |--------|-------|------------|
-| Code guessing / brute force | External attacker | 6-digit random code + rate limiting (15 failed attempts triggers 429) |
+| Code guessing / brute force | External attacker | 12-char case-sensitive alphanumeric code (62^12 space) + rate limiting |
 | SQL injection | External attacker | Parameterized queries via `aiosqlite`; no string interpolation |
 | Path traversal | External attacker | Object keys are UUIDs; filenames sanitized to basename only |
 | XSS via stored text | External attacker | Frontend `escapeHtml()`; CSP `script-src 'self'` |
@@ -17,10 +39,11 @@ OpenClipboard is a self-hosted, temporary pastebin-style service. Security is de
 | Clickjacking | External attacker | `X-Frame-Options: DENY` |
 | MIME sniffing | External attacker | `X-Content-Type-Options: nosniff` |
 | Data persistence after expiry | Operator / attacker | Background purge worker + lazy purge on access |
+| Hardcoded secrets in repo | Contributor | Pre-commit/pre-push secret scanning + CI `detect-secrets` |
 
 ## 2. Authentication & Authorization
 
-v1 has **no user accounts**. The 6-digit code is the capability:
+v1 has **no user accounts**. The code is the sole credential:
 
 - Anyone with the code can `GET /api/retrieve/{code}`
 - Anyone with the code can `DELETE /api/item/{code}`
@@ -29,11 +52,22 @@ v1 has **no user accounts**. The 6-digit code is the capability:
 > ⚠️ Share codes only through trusted channels. Do not post codes publicly.
 
 ### Future (v2)
+
 - Optional JWT auth so only the sender can delete
 - API keys for programmatic access
 - Password-protected clips
 
-## 3. Rate Limiting
+## 3. Code Entropy
+
+Codes are **12 characters**, case-sensitive alphanumeric (`[A-Za-z0-9]`):
+
+- Combination space: 62^12 ≈ 3.2 sextillion
+- Generated via `secrets.choice()` (cryptographically secure)
+- Format validated with `^[\w]{12}$` (alphanumeric only)
+
+> The README previously referenced "6-digit codes"; the implementation uses 12-character codes for stronger entropy.
+
+## 4. Rate Limiting
 
 Powered by `slowapi`, keyed by client IP:
 
@@ -48,18 +82,29 @@ Powered by `slowapi`, keyed by client IP:
 
 Exceeding a limit returns `HTTP 429 Too Many Requests`.
 
-## 4. Input Validation
+## 5. Brute-Force Lockout
+
+Failed retrieval attempts (wrong password, invalid code) increment a counter:
+
+| Setting | Default |
+|---------|---------|
+| Max failed attempts | 5 |
+| Lockout duration | 300 seconds (5 minutes) |
+
+After `MAX_FAILED_ATTEMPTS` failures, the item is locked for `LOCKOUT_SECONDS`. Successful retrieval resets the counter.
+
+## 6. Input Validation
 
 | Input | Validation |
 |-------|------------|
-| Code | Regex `^\d{6}$` (6 digits only) |
+| Code | Regex `^[A-Za-z0-9]{12}$` (12 alphanumeric chars) |
 | `kind` | Must be `text`, `image`, or `file` |
 | `ttl` | Integer between `CLIP_MIN_TTL` and `CLIP_MAX_TTL` |
 | File size | ≤ `CLIP_MAX_UPLOAD_BYTES` (default 50 MB) |
 | File type | Magic-byte verified; executables rejected |
 | Filename | Basename only; path separators stripped |
 
-## 5. File Upload Security
+## 7. File Upload Security
 
 - Client `Content-Type` header is **never trusted**
 - `python-magic` inspects the first bytes of the file
@@ -70,7 +115,7 @@ Exceeding a limit returns `HTTP 429 Too Many Requests`.
   - Mach-O / macOS (`\xca\xfe\xba\xbe`, etc.)
   - Shell scripts (`#!`)
 
-## 6. Security Headers
+## 8. Security Headers
 
 All responses include:
 
@@ -82,7 +127,7 @@ All responses include:
 | `Content-Security-Policy` | `default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; base-uri 'self'; form-action 'self'` |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` |
 
-## 7. Data Retention & Destruction
+## 9. Data Retention & Destruction
 
 - Content is hard-deleted after its TTL (default 15 min, max 24h)
 - One-shot content is deleted immediately after first download
@@ -90,7 +135,7 @@ All responses include:
 - Lazy purge: expired rows are deleted on access if the worker missed them
 - Blobs and metadata are deleted together; no orphaned data
 
-## 8. Deployment Security
+## 10. Deployment Security
 
 ### Recommended Production Setup
 
@@ -116,7 +161,7 @@ Internet
 - Use `CLIP_ALLOWED_HOSTS` to restrict Host headers
 - Use `CLIP_CORS_ORIGINS` to restrict cross-origin requests
 
-## 9. Environment Variables (Security-Related)
+## 11. Environment Variables (Security-Related)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -128,15 +173,32 @@ Internet
 | `CLIP_RATE_LIMIT_DELETE` | `10/minute` | Delete endpoint rate limit |
 | `CLIP_MAX_UPLOAD_MB` | `50` | Max upload size in MB |
 | `CLIP_MAX_TTL` | `86400` | Max TTL in seconds (24h) |
+| `CLIP_MAX_FAILED_ATTEMPTS` | `5` | Max failed attempts before lockout |
+| `CLIP_LOCKOUT_SECONDS` | `300` | Lockout duration in seconds |
+| `CLIP_ADMIN_PASSWORD` | `admin` | ⚠️ CHANGE IN PRODUCTION |
 | `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` | `minioadmin` | Change in production |
 
-## 10. Known Limitations (v1)
+> Never commit `.env` or secrets to version control. Use `.env.example` as a template.
+
+## 12. Local Git Hooks
+
+Install hooks to enforce security on every commit and push:
+
+```bash
+./scripts/install_hooks.sh
+```
+
+- **pre-commit**: scans staged files for secrets, blocks `.env` commits, runs quick security audit
+- **pre-push**: runs full secret scan, blocks direct push to `main`, runs full security audit
+
+## 13. Known Limitations (v1)
 
 - No end-to-end encryption (content is stored plaintext at rest)
 - No user accounts (code is the only credential)
 - No audit log of who retrieved/deleted what
 - SQLite is single-writer; not suitable for multi-instance horizontal scaling without MinIO + shared DB
 
-## 11. Reporting Security Issues
+## 14. Reporting Security Issues
 
 Please report vulnerabilities privately. Do not file public issues for security bugs.
+

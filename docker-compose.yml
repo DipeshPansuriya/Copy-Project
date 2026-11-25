@@ -45,9 +45,11 @@ services:
       CLIP_PASSWORD_PROTECTION: "true"
 
       # Admin / monitoring
-      CLIP_ADMIN_ENABLED: "true"
-      CLIP_ADMIN_USERNAME: "admin"
-      CLIP_ADMIN_PASSWORD: "admin"   # ⚠️ change in production!
+      # Disabled by default for local dev. Enable and set credentials via .env
+      # (never hardcode them here). Production uses docker-compose.prod.yml + .env.
+      CLIP_ADMIN_ENABLED: "${CLIP_ADMIN_ENABLED:-false}"
+      CLIP_ADMIN_USERNAME: "${CLIP_ADMIN_USERNAME:-admin}"
+      CLIP_ADMIN_PASSWORD: "${CLIP_ADMIN_PASSWORD:-}"
 
     restart: unless-stopped
 

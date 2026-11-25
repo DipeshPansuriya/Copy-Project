@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OpenClipboard — copy &amp; paste between devices</title>
-  <meta name="description" content="Open-source clipboard: send text, images or files to any device with a 6-digit code. Content auto-deletes." />
+  <meta name="description" content="Open-source clipboard: send text, images or files to any device with a 12-character code. Content auto-deletes." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>" />
   <link rel="stylesheet" href="/style.css" />
 </head>
@@ -107,7 +107,7 @@
           <div class="result__actions">
             <button class="btn btn--ghost" id="copy-link" type="button">📋 Copy code</button>
           </div>
-          <p class="hint">Share this 8-character code on any other device to retrieve your content. Do not put it in a URL.</p>
+          <p class="hint">Share this 12-character code on any other device to retrieve your content. Do not put it in a URL.</p>
         </div>
       </div>
     </section>
@@ -119,8 +119,9 @@
       </div>
       <div class="card__body">
         <div class="code-input-row">
-          <input class="code-input" id="retrieve-code" inputmode="numeric"
-            pattern="[0-9]*" maxlength="6" placeholder="······" autocomplete="off" />
+          <input class="code-input" id="retrieve-code" inputmode="text"
+            pattern="[A-Za-z0-9]*" maxlength="12" placeholder="············"
+            autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
           <button class="btn btn--primary" id="retrieve-btn" type="button">Retrieve</button>
         </div>
 
