@@ -75,7 +75,7 @@ CLIP_RATE_LIMIT_SEND=20/minute
 
 - [ ] `docker compose ps` shows `openclipboard-app` as `Up`
 - [ ] `curl http://localhost:8000/health` returns `{"status":"ok"}`
-- [ ] Send text returns a 6-digit code
+- [ ] Send text returns a 12-character code
 - [ ] Retrieve with that code returns the text
 - [ ] Image upload and download works
 - [ ] One-shot content deletes after download

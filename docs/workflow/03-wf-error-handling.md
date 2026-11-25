@@ -6,7 +6,7 @@
 
 | Category | HTTP Status | Examples | Response |
 |----------|-------------|----------|----------|
-| Client error | 400 | Invalid code format | `{"detail": "Codes are 6 digits"}` |
+| Client error | 400 | Invalid code format | `{"detail": "Codes are 12 characters"}` |
 | Client error | 404 | Code not found | `{"detail": "No such code..."}` |
 | Client error | 410 | Expired or one-shot consumed | `{"detail": "This code has expired..."}` |
 | Client error | 413 | File too large | `{"detail": "File exceeds...MB limit"}` |
@@ -45,7 +45,7 @@ Request received
 ```
 Request: GET /api/retrieve/abcdef
 Response: 400 Bad Request
-Body: {"detail": "Codes are 6 digits"}
+Body: {"detail": "Codes are 12 characters"}
 ```
 
 ### Expired Code
@@ -97,7 +97,7 @@ The frontend (`app.js`) handles errors as follows:
 
 | Status | UI Behavior |
 |--------|-------------|
-| 400 | Show "Please enter a 6-digit code" |
+| 400 | Show "Please enter a 12-character code" |
 | 404 | Show "No such code" |
 | 410 | Show "This code has expired and its content was deleted" |
 | 413 | Show file size error |

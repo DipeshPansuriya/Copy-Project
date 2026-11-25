@@ -1,7 +1,6 @@
 """HTTP API: send / retrieve / download / delete / stats."""
 from __future__ import annotations
 
-import magic
 import secrets
 import time
 import urllib.parse
@@ -13,6 +12,7 @@ from fastapi.responses import Response, StreamingResponse
 from .. import deps
 from ..cache import cache
 from ..config import settings
+from ..filetype import detect_mime
 from ..schemas import ItemInfo, RetrieveResponse, SendResponse, StatsResponse, _iso, info_from_row
 
 router = APIRouter(prefix="/api")
@@ -80,7 +80,7 @@ def _verify_image_mime(data: bytes) -> str:
 
     Raises HTTPException(422) if it is not a recognized image format.
     """
-    mime = magic.from_buffer(data, mime=True)
+    mime = detect_mime(data)
     if mime not in ALLOWED_IMAGE_MIMES:
         raise HTTPException(
             status_code=422,
@@ -137,7 +137,7 @@ async def _stream_upload_with_validation(
     else:
         if _is_executable(magic_bytes):
             raise HTTPException(status_code=422, detail="Executable file types are not allowed")
-        content_type = magic.from_buffer(magic_bytes, mime=True)
+        content_type = detect_mime(magic_bytes)
 
     # Stream all chunks to storage
     async def _full_stream():
@@ -246,7 +246,7 @@ async def send(
         await db.create_item(
             code=code,
             kind=kind,
-            filename=file.filename if kind != TEXT_KIND else None,
+            filename=filename,
             content_type=content_type,
             size=size,
             object_key=object_key,
@@ -265,7 +265,7 @@ async def send(
     return SendResponse(
         code=code,
         kind=kind,
-        filename=file.filename if kind != TEXT_KIND else None,
+        filename=filename,
         size=size,
         ttl=ttl,
         created_at=_iso(now),
@@ -371,6 +371,10 @@ async def retrieve(
     row = await _live_item(code)
     if row is None:
         raise HTTPException(status_code=410, detail="This code has expired and was deleted")
+
+    # Burn-after-read for text entries: retrieving the body consumes the item.
+    if row["one_shot"] and row["kind"] == TEXT_KIND:
+        await db.mark_retrieved(code)
 
     result = RetrieveResponse(
         item=info_from_row(row),

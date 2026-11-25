@@ -14,7 +14,7 @@
        │                   │ 2. Validate input       │
        │                   │ 3. Verify file type     │
        │                   │    (magic bytes)        │
-       │                   │ 4. Generate 6-digit     │
+       │                   │ 4. Generate 12-character     │
        │                   │    code (secrets)       │
        │                   │ 5. Write blob to        │
        │                   │    storage              │
@@ -38,11 +38,11 @@
 │  (Receiver) │      │  (Retrieve UI)   │      │  (/api/retrieve) │
 └──────┬──────┘      └─────────┬────────┘      └─────────┬────────┘
        │                      │                           │
-       │ 1. Enter 6-digit     │                           │
+       │ 1. Enter 12-character     │                           │
        │    code              │                           │
        │──────────────────────│───────────────────────────│
        │                      │ 2. Validate code format   │
-       │                      │    (^\d{6}$)              │
+       │                      │    (^[A-Za-z0-9]{12}$)              │
        │                      │ 3. Look up in SQLite      │
        │                      │ 4. Check expiry /         │
        │                      │    one-shot status        │

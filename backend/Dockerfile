@@ -25,5 +25,12 @@ ENV CLIP_STORAGE=local
 
 EXPOSE 8000
 
+# Create a non-root user for running the app (security hardening)
+RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser \
+    && mkdir -p /data \
+    && chown -R appuser:appuser /app /data
+
+USER appuser
+
 # Run the app; uvicorn handles graceful shutdown so the purge worker stops cleanly.
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

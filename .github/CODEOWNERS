@@ -1,0 +1,26 @@
+# CODEOWNERS
+# Files matching these patterns are assigned to the listed owners for review.
+
+# Documentation
+/docs/                              @DipeshPansuriya
+*.md                                @DipeshPansuriya
+
+# Backend application code
+/backend/app/                       @DipeshPansuriya
+/backend/tests/                     @DipeshPansuriya
+
+# Security configuration
+/.githooks/                         @DipeshPansuriya
+/scripts/                           @DipeshPansuriya
+/.github/                           @DipeshPansuriya
+
+# Infrastructure & deployment
+docker-compose*.yml                 @DipeshPansuriya
+/Dockerfile                         @DipeshPansuriya
+/backend/Dockerfile                 @DipeshPansuriya
+/.env.example                       @DipeshPansuriya
+
+# Configuration
+/backend/app/config.py              @DipeshPansuriya
+/backend/app/storage.py             @DipeshPansuriya
+/backend/app/db.py                  @DipeshPansuriya

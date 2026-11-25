@@ -8,7 +8,7 @@
 
 ## Authentication
 
-v1 uses **capability-based access**: the 6-digit code is the sole credential. Anyone who knows the code can retrieve or delete the content. No sessions, cookies, or API keys are required.
+v1 uses **capability-based access**: the 12-character code is the sole credential. Anyone who knows the code can retrieve or delete the content. No sessions, cookies, or API keys are required.
 
 > ⚠️ Treat the code like a password. Share it only through trusted channels.
 
@@ -18,7 +18,7 @@ v1 uses **capability-based access**: the 6-digit code is the sole credential. An
 
 **`POST /api/send`**
 
-Creates a new clipboard entry and returns a 6-digit retrieval code.
+Creates a new clipboard entry and returns a 12-character retrieval code.
 
 **Request** (`multipart/form-data`)
 
@@ -82,7 +82,7 @@ Returns item metadata. For text entries, the body is included inline.
 
 | Status | Meaning |
 |--------|---------|
-| 400 | Code is not 6 digits |
+| 400 | Code is not 12 characters |
 | 404 | Code does not exist |
 | 410 | Code expired or already consumed (one-shot) |
 

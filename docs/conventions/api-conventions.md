@@ -78,8 +78,8 @@ Internally stored as Unix epoch seconds (float) in SQLite.
 ## 7. Code Format
 
 - 6 numeric digits: `000000` to `999999`
-- Generated via `secrets.randbelow(1_000_000)`
-- Validated with regex `^\d{6}$`
+- Generated via `secrets.choice over [A-Za-z0-9]`
+- Validated with regex `^[A-Za-z0-9]{12}$`
 
 ## 8. Rate Limit Headers
 

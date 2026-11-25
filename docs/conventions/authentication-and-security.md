@@ -4,7 +4,7 @@
 
 OpenClipboard v1 uses **capability-based access**. There are no usernames, passwords, or sessions.
 
-- The **6-digit code** is the sole credential.
+- The **12-character code** is the sole credential.
 - Anyone who knows the code can retrieve, download, or delete the content.
 - No cookies, no JWT, no OAuth.
 
@@ -13,16 +13,16 @@ OpenClipboard v1 uses **capability-based access**. There are no usernames, passw
 | Action | Required | Enforced By |
 |--------|----------|-------------|
 | Send content | None | Rate limit only |
-| Retrieve content | Valid 6-digit code | Code lookup + expiry check |
-| Download file | Valid 6-digit code | Code lookup + expiry check |
-| Delete content | Valid 6-digit code | Code lookup |
+| Retrieve content | Valid 12-character code | Code lookup + expiry check |
+| Download file | Valid 12-character code | Code lookup + expiry check |
+| Delete content | Valid 12-character code | Code lookup |
 | View stats | None | Rate limit only |
 
 ## 3. Security Controls
 
 | Control | Implementation |
 |---------|---------------|
-| Code entropy | `secrets.randbelow(1_000_000)` — cryptographically random |
+| Code entropy | `secrets.choice over [A-Za-z0-9]` — cryptographically random |
 | Brute force protection | Rate limiting: 30/min on retrieve endpoints |
 | SQL injection | Parameterized queries via `aiosqlite` |
 | XSS | Frontend `escapeHtml()` + CSP `script-src 'self'` |

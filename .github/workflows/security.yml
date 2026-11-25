@@ -1,0 +1,72 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * *"  # daily at 02:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install detect-secrets bandit safety
+
+      # The project's own 19-rule scanner is authoritative and must pass.
+      - name: Run custom secret scanner
+        run: python3 scripts/check_secrets.py --push
+
+      - name: Run detect-secrets scan
+        run: |
+          detect-secrets scan --baseline .secrets.baseline . || true
+
+      - name: Run bandit security linter
+        run: |
+          bandit -r backend/app/ -f json -o bandit-report.json || true
+          bandit -r backend/app/ || true
+
+      - name: Run safety dependency check
+        run: |
+          cd backend && safety check --json --output safety-report.json || true
+          cd backend && safety check || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+            .secrets.baseline
+          retention-days: 30
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4

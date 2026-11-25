@@ -4,14 +4,14 @@
 
 ## 1. Overview
 
-OpenClipboard is a self-hosted, temporary clipboard-sharing service. Users send content from one device and retrieve it on another using a 6-digit code.
+OpenClipboard is a self-hosted, temporary clipboard-sharing service. Users send content from one device and retrieve it on another using a 12-character code.
 
 ## 2. Actors
 
 | Actor | Description |
 |-------|-------------|
-| **Sender** | User who uploads text, image, or file and receives a 6-digit code |
-| **Receiver** | User who enters the 6-digit code on any device to view/download |
+| **Sender** | User who uploads text, image, or file and receives a 12-character code |
+| **Receiver** | User who enters the 12-character code on any device to view/download |
 | **Operator** | Person who self-hosts the OpenClipboard instance |
 
 ## 3. External Systems
@@ -34,8 +34,8 @@ OpenClipboard is a self-hosted, temporary clipboard-sharing service. Users send 
 │  │  (Device A) │                    │  (Device B) │                    │
 │  │  Web Browser│                    │  Web Browser│                    │
 │  └──────┬──────┘                    └──────┬──────┘                    │
-│         │  Enter text/file                  │  Enter 6-digit code       │
-│         │  Get 6-digit code                 │  Get content              │
+│         │  Enter text/file                  │  Enter 12-character code       │
+│         │  Get 12-character code                 │  Get content              │
 │         └───────────────────────────────────┘                           │
 │                    Internet / Local Network                             │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -64,7 +64,7 @@ OpenClipboard is a self-hosted, temporary clipboard-sharing service. Users send 
 
 ## 5. Key Interactions
 
-1. **Sender** → OpenClipboard: POST content → Get 6-digit code
+1. **Sender** → OpenClipboard: POST content → Get 12-character code
 2. **Receiver** → OpenClipboard: POST code → Get content
 3. **OpenClipboard** → SQLite: Store/lookup metadata
 4. **OpenClipboard** → Storage: Store/retrieve blobs

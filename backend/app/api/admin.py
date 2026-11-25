@@ -1,7 +1,8 @@
 """Admin API: authentication, monitoring, logs, usage, health."""
 from __future__ import annotations
 
-import os
+import hmac
+import secrets
 import time
 from collections import deque
 from typing import Optional
@@ -20,25 +21,45 @@ router = APIRouter(prefix="/admin")
 _admin_sessions: dict[str, float] = {}  # token -> expiry timestamp
 _ADMIN_LOG_LINES: deque = deque(maxlen=1000)  # last 1000 log lines
 
+# Session lifetime (seconds) and hard cap on concurrent sessions.
+ADMIN_SESSION_TTL = 3600
+MAX_ADMIN_SESSIONS = 100
+
 
 class AdminToken(BaseModel):
     token: str
 
 
 def _verify_admin_credentials(username: str, password: str) -> bool:
-    """Check admin credentials against environment variables."""
+    """Check admin credentials against environment variables.
+
+    Comparison is constant-time to avoid leaking credential length/prefix
+    through response timing.
+    """
     expected_user = settings.admin_username
     expected_pw = settings.admin_password
     if not expected_user or not expected_pw:
         return False
-    if username != expected_user:
-        return False
-    return password == expected_pw
+    user_ok = hmac.compare_digest(username.encode("utf-8"), expected_user.encode("utf-8"))
+    pass_ok = hmac.compare_digest(password.encode("utf-8"), expected_pw.encode("utf-8"))
+    return user_ok and pass_ok
 
 
 def _generate_admin_token() -> str:
-    import secrets
     return secrets.token_hex(32)
+
+
+def _purge_expired_sessions() -> None:
+    """Drop expired sessions and enforce the concurrent-session cap."""
+    now = time.time()
+    for token in [t for t, exp in _admin_sessions.items() if now > exp]:
+        _admin_sessions.pop(token, None)
+    if len(_admin_sessions) > MAX_ADMIN_SESSIONS:
+        # Evict the sessions closest to expiry first.
+        for token, _ in sorted(_admin_sessions.items(), key=lambda kv: kv[1])[
+            : len(_admin_sessions) - MAX_ADMIN_SESSIONS
+        ]:
+            _admin_sessions.pop(token, None)
 
 
 def _verify_admin_token(token: str | None) -> bool:
@@ -69,10 +90,13 @@ def _require_admin(request: Request) -> None:
 @router.post("/login", response_model=AdminToken)
 async def admin_login(username: str = Form(...), password: str = Form(...)):
     """Authenticate and return an admin session token."""
+    if not settings.admin_enabled:
+        raise HTTPException(status_code=404, detail="Admin API disabled")
     if not _verify_admin_credentials(username, password):
         raise HTTPException(status_code=401, detail="Invalid admin credentials")
+    _purge_expired_sessions()
     token = _generate_admin_token()
-    _admin_sessions[token] = time.time() + 3600  # 1 hour session
+    _admin_sessions[token] = time.time() + ADMIN_SESSION_TTL
     return AdminToken(token=token)
 
 
