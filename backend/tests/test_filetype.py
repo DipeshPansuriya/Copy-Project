@@ -4,6 +4,8 @@ Verifies that MIME detection never trusts the client Content-Type and that the
 pure-Python fallback agrees with libmagic on the formats the app cares about.
 """
 
+import struct
+
 import pytest
 
 from app.filetype import _fallback_detect, detect_mime, using_libmagic
@@ -18,10 +20,21 @@ PNG = (
 JPEG = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01" + b"\x00" * 32
 GIF = b"GIF89a" + b"\x00" * 32
 WEBP = b"RIFF" + b"\x24\x00\x00\x00" + b"WEBP" + b"VP8 " + b"\x00" * 32
-BMP = b"BM" + b"\x00" * 32
 PDF = b"%PDF-1.7\n" + b"\x00" * 32
 ZIP = b"PK\x03\x04" + b"\x00" * 32
 GZIP = b"\x1f\x8b\x08" + b"\x00" * 32
+
+
+def _make_bmp() -> bytes:
+    """Build a real 1x1 24-bit BMP so libmagic recognises it as image/bmp."""
+    pixels = b"\x00\x00\xff" + b"\x00"  # BGR red + row padding to 4 bytes
+    dib = struct.pack("<IiiHHIIiiII", 40, 1, 1, 1, 24, 0, len(pixels), 2835, 2835, 0, 0)
+    offset = 14 + len(dib)
+    header = b"BM" + struct.pack("<IHHI", offset + len(pixels), 0, 0, offset)
+    return header + dib + pixels
+
+
+BMP = _make_bmp()
 
 
 class TestFallbackDetection:
