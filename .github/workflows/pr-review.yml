@@ -32,6 +32,9 @@ jobs:
             test
             chore
             security
+            build
+            deps
+            ci
           requireScope: false
 
       - name: Set up Python
