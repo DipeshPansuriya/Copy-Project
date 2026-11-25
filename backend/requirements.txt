@@ -11,4 +11,4 @@ aiosqlite>=0.22.1
 slowapi>=0.1.10        # rate limiting
 python-magic>=0.4.27  # real file type verification (not trusting MIME from client)
 bcrypt>=4.2.0         # password hashing for optional clip protection
-asyncpg>=0.29         # PostgreSQL async driver
+asyncpg>=0.32.0         # PostgreSQL async driver
