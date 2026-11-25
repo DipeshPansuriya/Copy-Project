@@ -114,7 +114,9 @@ api PUT "/repos/${OWNER}/${REPO}/automated-security-fixes" >/dev/null 2>&1 \
 api PATCH "/repos/${OWNER}/${REPO}" "$(jq -n '{
   security_and_analysis: {
     secret_scanning: { status: "enabled" },
-    secret_scanning_push_protection: { status: "enabled" }
+    secret_scanning_push_protection: { status: "enabled" },
+    secret_scanning_non_provider_patterns: { status: "enabled" },
+    secret_scanning_validity_checks: { status: "enabled" }
   }
 }')" >/dev/null 2>&1 \
   && echo "✓ secret scanning + push protection enabled" \
@@ -127,6 +129,7 @@ api PUT "/repos/${OWNER}/${REPO}/branches/${BRANCH}/protection" "$(jq -n '{
     contexts: [
       "Secret Scanning",
       "Dependency Review",
+      "Analyze (python)",
       "Lint & Format",
       "Run Tests",
       "Docker Build",

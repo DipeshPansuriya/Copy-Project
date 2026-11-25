@@ -75,6 +75,7 @@ The custom secret scanner (`scripts/check_secrets.py`) implements 19 rules:
 | Workflow | Triggers | What it runs |
 |----------|----------|--------------|
 | `security.yml` | push to main, PR, daily, manual | detect-secrets, bandit, safety, custom scanner, dependency review |
+| `codeql.yml` | push to main, PR, weekly, manual | CodeQL static analysis (security-and-quality queries) |
 | `quality.yml` | push to main, PR | black, flake8, isort, mypy, pytest, Docker build |
 | `pr-review.yml` | PR to main | semantic PR title, security audit, secret scan, Docker build |
 

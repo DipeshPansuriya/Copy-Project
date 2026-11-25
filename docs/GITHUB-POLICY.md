@@ -7,9 +7,13 @@ It is modeled on the security configuration of
 
 ## 1. Repository Visibility
 
-- **Status:** Public (planned migration to Private → Public with proper governance)
+- **Status:** Public
 - **Owner:** Dipesh Pansuriya (@DipeshPansuriya)
 - **URL:** https://github.com/DipeshPansuriya/Copy-Project
+- **Default branch:** `main`
+
+> Public visibility is required for free secret scanning and push protection on
+> a personal account. Branch protection and Dependabot apply regardless.
 
 ## 2. Branch Protection Rules
 

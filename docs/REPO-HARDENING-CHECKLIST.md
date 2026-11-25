@@ -42,6 +42,7 @@ the security configuration of
 ## CI/CD Workflows
 
 - [ ] `.github/workflows/security.yml` — Secret scanning, bandit, safety, dependency review
+- [ ] `.github/workflows/codeql.yml` — CodeQL static analysis
 - [ ] `.github/workflows/quality.yml` — Lint, test, Docker build
 - [ ] `.github/workflows/pr-review.yml` — PR title convention, security audit
 
