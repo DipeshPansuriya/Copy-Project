@@ -31,31 +31,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install detect-secrets bandit safety
 
-      - name: Run detect-secrets baseline scan
-        id: detect_secrets
+      # The project's own 19-rule scanner is authoritative and must pass.
+      - name: Run custom secret scanner
+        run: python3 scripts/check_secrets.py --push
+
+      - name: Run detect-secrets scan
         run: |
-          if [ -f .secrets.baseline ]; then
-            detect-secrets audit .secrets.baseline || true
-          else
-            detect-secrets scan --baseline .secrets.baseline . || true
-          fi
+          detect-secrets scan --baseline .secrets.baseline . || true
 
       - name: Run bandit security linter
-        id: bandit
         run: |
           bandit -r backend/app/ -f json -o bandit-report.json || true
           bandit -r backend/app/ || true
 
       - name: Run safety dependency check
-        id: safety
         run: |
           cd backend && safety check --json --output safety-report.json || true
           cd backend && safety check || true
-
-      - name: Run custom secret scanner
-        id: custom_secret_scan
-        run: |
-          python3 scripts/check_secrets.py --push || true
 
       - name: Upload security reports
         uses: actions/upload-artifact@v4
