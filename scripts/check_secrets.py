@@ -107,9 +107,9 @@ def is_config_declaration(line: str) -> bool:
     return False
 
 
-def scan_file(path: Path) -> list[tuple[int, str, str]]:
-    """Scan a single file for secrets. Returns list of (line_number, matched_text, rule_name)."""
-    findings: list[tuple[int, str, str]] = []
+def scan_file(path: Path) -> list[tuple[int, str]]:
+    """Scan a single file for secrets. Returns list of (line_number, rule_name)."""
+    findings: list[tuple[int, str]] = []
     try:
         text = path.read_text(encoding="utf-8", errors="ignore")
     except Exception:
@@ -124,16 +124,15 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
         if is_config_declaration(stripped):
             continue
         for regex, name in COMPILED_RULES:
-            match = regex.search(line)
-            if match:
-                findings.append((line_no, match.group(0)[:80], name))
+            if regex.search(line):
+                findings.append((line_no, name))
 
     return findings
 
 
-def scan_repo(quick: bool = False) -> list[tuple[Path, int, str, str]]:
-    """Scan the whole repository. Returns list of (file, line_no, match, rule_name)."""
-    findings: list[tuple[Path, int, str, str]] = []
+def scan_repo(quick: bool = False) -> list[tuple[Path, int, str]]:
+    """Scan the whole repository. Returns list of (file, line_no, rule_name)."""
+    findings: list[tuple[Path, int, str]] = []
     for path in ROOT.rglob("*"):
         if not path.is_file():
             continue
@@ -145,8 +144,8 @@ def scan_repo(quick: bool = False) -> list[tuple[Path, int, str, str]]:
             file_findings = scan_file(path)
         except Exception:
             continue
-        for line_no, match, rule_name in file_findings:
-            findings.append((path, line_no, match, rule_name))
+        for line_no, _match, rule_name in file_findings:
+            findings.append((path, line_no, rule_name))
     return findings
 
 
@@ -161,10 +160,10 @@ def main() -> int:
 
     if findings:
         print("❌ SECRETS DETECTED — potential hardcoded secrets found:")
-        for path, line_no, _match, rule_name in findings:
+        for path, line_no, _rule_name in findings:
             rel = path.relative_to(ROOT)
             # Never echo the matched value: this output lands in CI logs.
-            print(f"  {rel}:{line_no} — {rule_name} (value redacted)")
+            print(f"  {rel}:{line_no} — rule matched (value redacted)")
         print(f"\nTotal findings: {len(findings)}")
         print("Move secrets to environment variables or .env (never commit .env).")
         return 1
